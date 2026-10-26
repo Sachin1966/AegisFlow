@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegisflow"
+version = "0.1.0"
+description = "Real-Time Payment Fraud Scoring and Agentic AML Investigation Platform"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --import-mode=importlib"
+testpaths = [
+    "tests",
+]
+pythonpath = [
+    "ml/src",
+    "generator/src",
+    "services/ingestion/src",
+    "services/scoring/src",
+    "services/casework/src",
+    "services/investigator/src",
+    "."
+]
+markers = [
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.pyright]
+extraPaths = [
+    "ml/src",
+    "generator/src",
+    "services/ingestion/src",
+    "services/scoring/src",
+    "services/casework/src",
+    "services/investigator/src"
+]
+

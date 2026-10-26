@@ -1,0 +1,2 @@
+{"case_id": "GOLDEN-CASE-001", "target_account": "ACCT-7842", "expected_ring_members": ["ACCT-7842", "ACCT-COUNTERPART-1", "ACCT-KNOWN-FRAUD-99"], "expected_shared_device": "DEV-9812", "expected_typologies": ["smurfing", "layering", "shared_device_ring"], "expected_amount": 76400.0}
+{"case_id": "GOLDEN-CASE-002", "target_account": "ACCT-5521", "expected_ring_members": ["ACCT-5521", "DEV-9812"], "expected_shared_device": "DEV-9812", "expected_typologies": ["shared_device_ring"], "expected_amount": 4200.0}

@@ -1,0 +1,24 @@
+{
+  "name": "aegisflow-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agentic Anti-Money-Laundering (AML) Investigation Workbench & Real-Time Fraud Scoring UI",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "serve": "serve -s . -p 3000"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "serve": "^14.2.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

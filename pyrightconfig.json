@@ -1,0 +1,18 @@
+{
+  "include": [
+    "ml/src",
+    "generator/src",
+    "services",
+    "tests",
+    "scripts",
+    "run_server.py"
+  ],
+  "extraPaths": [
+    "ml/src",
+    "generator/src",
+    "services/ingestion/src",
+    "services/scoring/src",
+    "services/casework/src",
+    "services/investigator/src"
+  ]
+}

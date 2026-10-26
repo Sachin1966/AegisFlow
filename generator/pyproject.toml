@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "txgen"
+version = "0.1.0"
+description = "AegisFlow Realistic Synthetic Transaction Generator & AML Typology Engine"
+authors = [{ name = "AegisFlow Team" }]
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",
+    "sqlalchemy>=2.0",
+    "psycopg2-binary>=2.9",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "networkx>=3.0",
+    "faker>=20.0",
+    "click>=8.1",
+    "requests>=2.31"
+]
+
+[project.scripts]
+txgen = "txgen.main:cli"

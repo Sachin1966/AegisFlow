@@ -1,0 +1,27 @@
+name: Scheduled Model Retraining Workflow
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Every Sunday at midnight
+  workflow_dispatch:
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt || true
+
+      - name: Run Model Retraining Pipeline
+        run: |
+          echo "Starting model retraining pipeline..."
+          python -m aegis_ml.training.train_fraud --model-type lightgbm --register-as challenger
+          echo "Challenger model trained and registered in MLflow."

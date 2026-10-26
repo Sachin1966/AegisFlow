@@ -1,0 +1,45 @@
+# AegisFlow Pipeline & Machine Learning Parameters
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  synthetic_dir: "data/synthetic"
+  ieee_cis_path: "data/raw/ieee-cis"
+  test_size: 0.2
+  time_split_col: "TransactionDT"
+  random_seed: 42
+
+features:
+  velocity_windows: [60, 3600, 86400, 604800] # 1m, 1h, 24h, 7d
+  zscore_window: 2592000 # 30d
+  graph_k_hop: 2
+  pagerank_alpha: 0.85
+
+model:
+  champion:
+    type: "xgboost"
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    scale_pos_weight: 15.0
+    eval_metric: "aucpr"
+  challenger:
+    type: "lightgbm"
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    scale_pos_weight: 15.0
+
+calibration:
+  method: "isotonic"
+
+decision:
+  review_threshold: 0.65
+  decline_threshold: 0.85
+  cost_matrix:
+    false_negative_cost: 500.0 # Cost of missed fraud
+    false_positive_cost: 15.0  # Customer friction cost

@@ -1,0 +1,33 @@
+{
+  "champion": {
+    "version": "xgboost_v1.0",
+    "model_type": "XGBoost",
+    "promoted_at": "2026-03-01T12:00:00Z",
+    "pr_auc": 0.884,
+    "roc_auc": 0.942,
+    "recall_at_1pct_fpr": 0.765,
+    "latency_p95_ms": 11.4,
+    "status": "ACTIVE"
+  },
+  "challenger": {
+    "version": "lightgbm_v1.1",
+    "model_type": "LightGBM",
+    "created_at": "2026-03-15T08:30:00Z",
+    "pr_auc": 0.902,
+    "roc_auc": 0.951,
+    "recall_at_1pct_fpr": 0.798,
+    "latency_p95_ms": 8.9,
+    "shadow_traffic_percent": 100,
+    "disagreement_rate": 0.043,
+    "status": "SHADOW"
+  },
+  "history": [
+    {
+      "action": "PROMOTE_CHAMPION",
+      "version": "xgboost_v1.0",
+      "timestamp": "2026-03-01T12:00:00Z",
+      "reason": "Initial baseline production deployment"
+    }
+  ],
+  "rollback_target": null
+}

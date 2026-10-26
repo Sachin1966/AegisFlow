@@ -1,0 +1,53 @@
+stages:
+  prepare_data:
+    cmd: python ml/src/aegis_ml/training/prepare_ieee.py
+    deps:
+      - data/raw/ieee-cis
+      - ml/src/aegis_ml/training/prepare_ieee.py
+    params:
+      - data.test_size
+      - data.random_seed
+    outs:
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+
+  extract_features:
+    cmd: python ml/src/aegis_ml/features/offline.py
+    deps:
+      - data/processed/train.parquet
+      - ml/src/aegis_ml/features/definitions.py
+      - ml/src/aegis_ml/features/offline.py
+    params:
+      - features.velocity_windows
+    outs:
+      - data/processed/train_features.parquet
+
+  train_champion:
+    cmd: python ml/src/aegis_ml/training/train_fraud.py --model-type xgboost
+    deps:
+      - data/processed/train_features.parquet
+      - ml/src/aegis_ml/training/train_fraud.py
+    params:
+      - model.champion
+    outs:
+      - ml/models/xgboost_champion.joblib
+
+  train_challenger:
+    cmd: python ml/src/aegis_ml/training/train_fraud.py --model-type lightgbm
+    deps:
+      - data/processed/train_features.parquet
+      - ml/src/aegis_ml/training/train_fraud.py
+    params:
+      - model.challenger
+    outs:
+      - ml/models/lightgbm_challenger.joblib
+
+  evaluate:
+    cmd: python ml/src/aegis_ml/evaluation/metrics.py
+    deps:
+      - data/processed/test.parquet
+      - ml/models/xgboost_champion.joblib
+      - ml/models/lightgbm_challenger.joblib
+    metrics:
+      - evaluation.json:
+          cache: false

@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aegis_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aegis_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aegis_password_secure}
+      POSTGRES_DB: ${POSTGRES_DB:-aegisflow_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aegis_user} -d ${POSTGRES_DB:-aegisflow_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aegis_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: aegis_qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.2
+    container_name: aegis_mlflow
+    restart: always
+    ports:
+      - "5000:5000"
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0 --port 5000
+    volumes:
+      - mlflow_data:/mlflow
+
+  ingestion:
+    build:
+      context: .
+      dockerfile: services/ingestion/Dockerfile
+    container_name: aegis_ingestion
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-aegis_user}:${POSTGRES_PASSWORD:-aegis_password_secure}@postgres:5432/${POSTGRES_DB:-aegisflow_db}
+      - REDIS_URL=redis://redis:6379/0
+      - SCORING_SERVICE_URL=http://scoring:8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  scoring:
+    build:
+      context: .
+      dockerfile: services/scoring/Dockerfile
+    container_name: aegis_scoring
+    restart: always
+    ports:
+      - "8002:8002"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  casework:
+    build:
+      context: .
+      dockerfile: services/casework/Dockerfile
+    container_name: aegis_casework
+    restart: always
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-aegis_user}:${POSTGRES_PASSWORD:-aegis_password_secure}@postgres:5432/${POSTGRES_DB:-aegisflow_db}
+      - JWT_SECRET=${SECRET_KEY:-aegisflow_jwt_secret_key_change_in_production_32bytes_min}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  investigator:
+    build:
+      context: .
+      dockerfile: services/investigator/Dockerfile
+    container_name: aegis_investigator
+    restart: always
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-aegis_user}:${POSTGRES_PASSWORD:-aegis_password_secure}@postgres:5432/${POSTGRES_DB:-aegisflow_db}
+      - QDRANT_URL=http://qdrant:6333
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aegis_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ingestion
+      - scoring
+      - casework
+      - investigator
+
+  generator:
+    build:
+      context: .
+      dockerfile: generator/Dockerfile
+    container_name: aegis_generator
+    restart: "no"
+    environment:
+      - INGESTION_SERVICE_URL=http://ingestion:8001
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-aegis_user}:${POSTGRES_PASSWORD:-aegis_password_secure}@postgres:5432/${POSTGRES_DB:-aegisflow_db}
+    depends_on:
+      ingestion:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  mlflow_data:
