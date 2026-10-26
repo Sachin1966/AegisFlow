@@ -11,7 +11,9 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+/dist/
+!frontend/dist/
+!frontend/dist/**
 downloads/
 eggs/
 .eggs/
@@ -38,7 +40,7 @@ venv.bak/
 # Node / Frontend
 node_modules/
 frontend/node_modules/
-frontend/dist/
+# frontend/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

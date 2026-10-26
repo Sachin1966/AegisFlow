@@ -5,7 +5,7 @@
   "description": "Agentic Anti-Money-Laundering (AML) Investigation Workbench & Real-Time Fraud Scoring UI",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node -e \"const fs=require('fs'); ['style.css','app.js','_redirects'].forEach(f => { if(fs.existsSync(f)) fs.copyFileSync(f, 'dist/' + f); });\"",
     "preview": "vite preview",
     "serve": "serve -s . -p 3000"
   },
